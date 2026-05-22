@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LGK TRIGGER LOCK V9</title>
+    <style>
+        :root {
+            --bg-color: #0b0c10;
+            --card-bg: rgba(26, 26, 36, 0.9);
+            --primary-color: #ff3366;
+            --accent-color: #00ffcc;
+            --text-color: #ffffff;
+            --text-muted: #8b9bb4;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            user-select: none;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+            background: radial-gradient(circle at center, #1f122e 0%, #0b0c10 100%);
+        }
+
+        /* Giao diện Thẻ Menu chính */
+        .container {
+            width: 90%;
+            max-width: 400px;
+            background: var(--card-bg);
+            border: 2px solid var(--primary-color);
+            border-radius: 16px;
+            box-shadow: 0 0 25px rgba(255, 51, 102, 0.3), inset 0 0 15px rgba(255, 51, 102, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 25px;
+            transition: all 0.4s ease;
+            position: relative;
+            z-index: 2;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Tiêu đề & Đèn Neon */
+        .header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            color: var(--primary-color);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 0 0 10px rgba(255, 51, 102, 0.6);
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        /* Khung Đăng Nhập Key */
+        .login-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .input-group {
+            position: relative;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 14px 16px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 51, 102, 0.5);
+            border-radius: 8px;
+            color: #fff;
+            font-size: 14px;
+            outline: none;
+            transition: 0.3s;
+            text-align: center;
+            letter-spacing: 1px;
+        }
+
+        .input-group input:focus {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 10px rgba(0, 255, 204, 0.3);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(45deg, var(--primary-color), #8000ff);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: 0.3s;
+            box-shadow: 0 4px 15px rgba(255, 51, 102, 0.4);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 51, 102, 0.6);
+        }
+
+        .error-msg {
+            color: #ff3333;
+            font-size: 13px;
+            text-align: center;
+            min-height: 18px;
+        }
+
+        /* Giao diện thông tin Admin bên trong */
+        .user-info {
+            background: rgba(0, 0, 0, 0.4);
+            border-left: 4px solid var(--accent-color);
+            padding: 10px 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            font-size: 13px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .user-info span {
+            color: var(--accent-color);
+            font-weight: bold;
+        }
+
+        /* Danh sách chức năng Cheat */
+        .menu-options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 25px;
+            max-height: 220px;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+
+        /* Custom thanh cuộn */
+        .menu-options::-webkit-scrollbar {
+            width: 4px;
+        }
+        .menu-options::-webkit-scrollbar-thumb {
+            background: var(--primary-color);
+            border-radius: 4px;
+        }
+
+        .option-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 12px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 8px;
+        }
+
+        .option-label {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        /* Công tắc gạt (Switch) */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 24px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #333;
+            transition: .3s;
+            border-radius: 24px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .3s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--accent-color);
+            box-shadow: 0 0 8px rgba(0, 255, 204, 0.5);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(20px);
+        }
+
+        /* Chọn phiên bản game */
+        .version-selector {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            justify-content: center;
+        }
+
+        .version-option {
+            flex: 1;
+            text-align: center;
+        }
+
+        .version-option input {
+            display: none;
+        }
+
+        .version-label {
+            display: block;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+
+        input:checked + .version-label {
+            border-color: var(--primary-color);
+            background: rgba(255, 51, 102, 0.15);
+            color: var(--primary-color);
+            box-shadow: 0 0 10px rgba(255, 51, 102, 0.2);
+        }
+
+        /* Nút Inject */
+        .btn-inject {
+            background: linear-gradient(45deg, var(--accent-color), #00b3ff);
+            color: #000;
+            font-weight: 800;
+            box-shadow: 0 4px 15px rgba(0, 255, 204, 0.3);
+        }
+
+        .btn-inject:hover {
+            box-shadow: 0 6px 20px rgba(0, 255, 204, 0.6);
+        }
+
+        /* Bảng thông báo thành công phủ toàn màn hình */
+        .overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(7, 8, 12, 0.95);
+            z-index: 999;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .success-box {
+            background: rgba(20, 20, 27, 0.9);
+            border: 2px solid var(--accent-color);
+            border-radius: 16px;
+            padding: 40px 30px;
+            box-shadow: 0 0 30px rgba(0, 255, 204, 0.3);
+            max-width: 360px;
+            width: 100%;
+            animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes popIn {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .success-title {
+            font-size: 22px;
+            color: #00ffcc;
+            font-weight: bold;
+            margin-bottom: 12px;
+            text-shadow: 0 0 10px rgba(0, 255, 204, 0.4);
+        }
+
+        .success-subtitle {
+            font-size: 14px;
+            color: var(--text-muted);
+            letter-spacing: 0.5px;
+            margin-bottom: 25px;
+        }
+
+        /* Hiệu ứng radar / vòng xoay loading */
+        .loader {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(0, 255, 204, 0.1);
+            border-radius: 50%;
+            border-top-color: var(--accent-color);
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 1. KHUNG ĐĂNG NHẬP KEY -->
+    <div id="login-container" class="container">
+        <div class="header">
+            <h1>AIMLOCK SYSTEM</h1>
+            <p>Vui lòng xác thực tài khoản để kích hoạt</p>
+        </div>
+        
+        <div class="login-form">
+            <div class="input-group">
+                <input type="text" id="key-input" placeholder="NHẬP KEY APP TẠI ĐÂY..." autocomplete="off">
+            </div>
+            <div id="error-box" class="error-msg"></div>
+            <button class="btn" onclick="validateKey()">LOGIN SYSTEM</button>
+        </div>
+    </div>
+
+    <!-- 2. GIAO DIỆN MENU CHỨC NĂNG (ẨN KHI CHƯA NHẬP KEY) -->
+    <div id="menu-container" class="container hidden">
+        <div class="header">
+            <h1>TRIGGER LOCK V9</h1>
+            <p>Hệ thống hỗ trợ khóa mục tiêu Free Fire</p>
+        </div>
+
+        <div class="user-info">
+            <div>User: <span id="username">---</span></div>
+            <div>IP: <span id="user-ip">---</span></div>
+        </div>
+
+        <!-- Chọn loại game -->
+        <div class="version-selector">
+            <div class="version-option">
+                <input type="radio" id="ffth" name="game-version" value="ffth" checked>
+                <label for="ffth" class="version-label">FREE FIRE THƯỜNG</label>
+            </div>
+            <div class="version-option">
+                <input type="radio" id="ffmax" name="game-version" value="ffmax">
+                <label for="ffmax" class="version-label">FREE FIRE MAX</label>
+            </div>
+        </div>
+
+        <!-- Các mục tính năng gạt bật tắt -->
+        <div class="menu-options">
+            <div class="option-item">
+                <div class="option-label">🔴 Auto AimLock 100%</div>
+                <label class="switch"><input type="checkbox" checked><span class="slider"></span></label>
+            </div>
+            <div class="option-item">
+                <div class="option-label">🎯 Aimbot Smooth (Ghim Tâm)</div>
+                <label class="switch"><input type="checkbox"><span class="slider"></span></label>
+            </div>
+            <div class="option-item">
+                <div class="option-label">💀 Auto Headshot (Tỉ lệ 99%)</div>
+                <label class="switch"><input type="checkbox"><span class="slider"></span></label>
+            </div>
+            <div class="option-item">
+                <div class="option-label">🟢 Hiện Tuyến Đường (ESP Line)</div>
+                <label class="switch"><input type="checkbox"><span class="slider"></span></label>
+            </div>
+            <div class="option-item">
+                <div class="option-label">⚡ Tăng Tốc Độ Đạn (No Recoil)</div>
+                <label class="switch"><input type="checkbox"><span class="slider"></span></label>
+            </div>
+        </div>
+
+        <button class="btn btn-inject" onclick="startInjection()">INJECT INTO GAME</button>
+    </div>
+
+    <!-- 3. BẢNG HIỂN THỊ THÀNH CÔNG (ẨN MẶC ĐỊNH) -->
+    <div id="success-screen" class="overlay hidden">
+        <div class="success-box">
+            <div class="success-title">Chúc Mừng Bạn Đã Thành Công✅</div>
+            <div class="success-subtitle">Anh Em Trải Nghiệm AimLock Vui Vẻ!!!</div>
+            <div class="loader"></div>
+            <p style="margin-top: 15px; font-size: 12px; color: #8b9bb4;">Đang chuyển hướng vào game...</p>
+        </div>
+    </div>
+
+    <script>
+        const CORRECT_KEY = "LGK-APP-TRIGGER-LOCK-V9";
+        
+        // Đường dẫn App Store bạn yêu cầu
+        const URL_FFTH = "https://apps.apple.com/vn/app/free-fire-b%C3%AD-%E1%BA%A9n-bi%E1%BB%83n-s%C3%A2u/id1300146617?l=vi";
+        const URL_FFMAX = "https://apps.apple.com/vn/app/free-fire-max/id1480516829?l=vi";
+
+        // Xử lý xác thực Key
+        function validateKey() {
+            const inputField = document.getElementById("key-input");
+            const errorBox = document.getElementById("error-box");
+            const inputVal = inputField.value.trim();
+
+            if (inputVal === CORRECT_KEY) {
+                // Đăng nhập đúng, chuyển màn hình
+                document.getElementById("login-container").classList.add("hidden");
+                document.getElementById("menu-container").classList.remove("hidden");
+                
+                // Gán thông tin cố định như yêu cầu
+                document.getElementById("username").innerText = "ADMIN-LGK";
+                document.getElementById("user-ip").innerText = "192.168.9.2";
+            } else {
+                // Báo lỗi nếu sai key
+                errorBox.innerText = "Key không chính xác hoặc đã hết hạn!";
+                inputField.style.borderColor = "#ff3333";
+                setTimeout(() => {
+                    errorBox.innerText = "";
+                    inputField.style.borderColor = "rgba(255, 51, 102, 0.5)";
+                }, 3000);
+            }
+        }
+
+        // Hỗ trợ nhấn Enter để đăng nhập nhanh
+        document.getElementById("key-input").addEventListener("keyup", function(event) {
+            if (event.key === "Enter") {
+                validateKey();
+            }
+        });
+
+        // Xử lý khi nhấn nút Inject
+        function startInjection() {
+            // Hiện màn hình chúc mừng trong 5 giây
+            const successScreen = document.getElementById("success-screen");
+            successScreen.classList.remove("hidden");
+
+            // Kiểm tra xem người dùng chọn bản FF thường hay FF Max
+            const isFFMax = document.getElementById("ffmax").checked;
+            const targetUrl = isFFMax ? URL_FFMAX : URL_FFTH;
+
+            // Chờ đúng 5 giây (5000ms) rồi chuyển hướng URL
+            setTimeout(() => {
+                window.location.href = targetUrl;
+            }, 5000);
+        }
+    </script>
+</body>
+</html>
